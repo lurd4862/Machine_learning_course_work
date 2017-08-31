@@ -1,0 +1,5 @@
+"0","y_predict <- predict(regressor, newdata = data.frame(Level = x_grid)) %>% data.frame
+"
+"2","Error in model.frame.default(Terms, newdata, na.action = na.action, xlev = attr(object,  : 
+  object is not a matrix
+"

@@ -1,0 +1,5 @@
+"0","ggplot() +"
+"0","  geom_point(data = dataset, aes(x = dataset$Level,"
+"0","                                  y = dataset$Salary)) +"
+"0","  geom_line(data = y_predict, aes(x = dataset$Level,"
+"0","                               y = y_predict))"
