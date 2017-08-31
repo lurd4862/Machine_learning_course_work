@@ -658,6 +658,107 @@ clusplot(
 )
 ```
 
+# Part 9 - Dimensionality Reduction
+
+## Load data
+
+```{r}
+dataset <- 
+  read.csv(file = "Part_9_Dimensionality_Reduction/PCA/Wine.csv")
+```
+
+## Overview
+
+There are 2 ways of reducing the dimensions of your dataset before fitting a model:  
+1. Feature selection. Like backward or forward elimination we did during Part 2 regression or using scores. This aims at removing features that are not significant in improving prediction in our dependant variable.  
+2. Feature extraction. This aims at combining features into fewer variables (dimensions). This is the focus of this chapter.  
+
+## PCA
+
+Assume customer segment is the result of clustering customers on the independant variables... Using this data we could fit a classification model to better predict which customer segment will like a new wine that has certain values for these variables.
+
+But in order to plot the link between the independant variables and the segment classification we would have to visualize too many variables.
+
+Also, to inspect this using a table is very difficult when you have many variables.
+Instead we use PCA to reduce the number of dimensions to 2 independant variables so that we can more easily tell a story of how customers are segmented (describe relationships that add customer insight).
+
+### Split into test and train sets
+
+```{r}
+set.seed(123)
+split <-  sample.split(dataset$Customer_Segment, SplitRatio = 0.8)
+training_set <- dataset %>% subset(split)
+test_set <- dataset %>% subset(!split)
+
+```
+
+### Feature scaling
+
+```{r}
+training_set[,1:13] <- scale(training_set[,1:13])
+test_set[,1:13] <- scale(test_set[,1:13])
+```
+
+### Create PCA
+
+#### Using Caret
+
+If you want to reduce the dimensionality while explaining at least a certain threshold of variation in y you can set this threshold as:  
+- thresh = 0.7  
+
+If however you know how many features you want to extract use:  
+- pcaComp = n  (this will overwrite thresh)  
+
+
+```{r}
+pca_caret <-
+  preProcess(x = training_set[, -14],
+  method = "pca",
+  pcaComp = 2)
+  
+  prediction_caret <-
+  pca_caret %>% predict(newdata = test_set[, -14])
+  
+  prediction_caret %>% plot()
+```
+
+#### Using FactoMineR
+
+To set number of features here you use  
+- ncp = n  
+
+```{r}
+pca_Facto <- 
+  FactoMineR::PCA(X = training_set[,-14], 
+                  ncp = 2)
+
+predict_Facto <-
+pca_Facto %>% predict(newdata = training_set[,-14])
+ 
+pca_Facto %>% plot 
+```
+
+
+### Fit classification model
+
+We can quicly fit a classification model to the feature scaled data. For simplicity we use simple models
+
+```{r}
+Classifier_glm <-
+  glm(data = training_set,
+  formula = Customer_Segment ~ .,
+  family = "binomial")
+
+Classifier_svm <-
+  svm(x = training_set,
+  type = "C-classification",
+  y = dataset$Customer_Segment)
+
+```
+
+
+## PCA
+
 # Playground
 
 ```{r}
