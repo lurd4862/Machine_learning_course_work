@@ -465,6 +465,106 @@ ggplot() +
 
 ```
 
+## Random forest regression
+
+Random forest is one method of ensemble learning. Generally speaking ensemble learning is fitting a model repeatedly and colating the results to create a more powerful and robust model.  
+
+Random forest intuition:  
+Pick n random points from the training set.  
+Build a decision tree on these n points.  
+Combine the trees to build a forest by predicting Y in each terminal mode and taking the average (either by counting out of total or predicting a probability in each tree and taking the mean).  
+
+### Load data
+
+```{r}
+salary_data <- data.table::fread("Part2_Regression/Random_Forest_Regression/Position_Salaries.csv")
+```
+
+### Fit model
+
+```{r}
+library(randomForest)
+predictor <- 
+  randomForest::randomForest(data = salary_data,Salary~Level,ntree=10)
+                # randomForest(
+                             # data=salary_data,
+                             # y = salary_data$Salary,
+                             # x = salary_data$Level,
+                             # ntree=10)
+```
+
+and now we predict an arbitrary value:
+
+```{r}
+y_predict <- predict(predictor, data.frame(Level = 6.5))
+```
+
+Let's plot this 2d relationship to understand the naive model:  
+
+```{r}
+x_range <- seq(min(salary_data$Level),max(salary_data$Level),0.01)
+
+ggplot(data = salary_data, aes(x = Level,y = Salary), color = "red")+
+  geom_point()+
+  geom_smooth()+
+  geom_line(data = data.frame(Level = x_range),aes(x=x_range,y=predict(predictor,newdata=data.frame(Level = Level))), color = "blue")
+
+```
+
+So in this simplified example we can nicely show how the random forest will attempt to predict the outcome variable in 2 dimensions. Obviously the model is much more powerful when working with larger and higher dimensional data. The randomForest package is particularly useful when explanetory variables are binary classes or multiple level factor variables since it has internal ways to dummify these cases and deal with them.
+
+Pay particular attention to over fitting your data (test out of sample accuracy) and also to class imbalances when your variables are intricate.  
+
+### A more robust application of machine learning regressions (random forest)
+
+With real data the machine learning model will have to be trained and tested using a bit more rigor. In that case I suggest that the practitioner use the caret workflow.
+
+Using the Iris dataset we illustrate:
+
+```{r}
+library(caret)
+library(e1071)
+classification_data = iris
+
+cvCtrl = caret::trainControl(method = "LGOCV",
+                             p = 0.8,
+                             number = 10,
+                             savePredictions = T)
+
+caret_forest_model <-
+      caret::train(data = classification_data, Species~., method = "rf", keep.forest=TRUE, trControl = cvCtrl
+                   # , sampsize=10000,ntree=40
+                   )
+
+caret_forest_model %>% plot
+varImp(caret_forest_model) %>% plot
+caret_forest_model$results
+```
+
+So we got a 93% accuracy when classifying the species using 10 fold leave one out cross validation using a 80% traning split  
+
+In this short pipeline you can split your data into training and testing , k-fold cross validate, using up or down sampling methods to deal with class imbalances, run on multiple cores and tune your parameters automatically or manually for a very large number of models
+git 
+The tuning of parameters can be done manually by setting:
+
+```{r, eval=FALSE}
+grid <- expand.grid(size=c(5,10,20,50), k=c(1,2,3,4,5))
+model <- train(Species~., data=iris, method="lvq", trControl=control, tuneGrid=grid)
+```
+
+To run on multiple cores use the following workflow before training the model:
+
+```{r}
+  cores <- cores
+  cl <- makeCluster(cores)
+  registerDoParallel(cl)
+  
+  # ---> train
+  
+  stopCluster(cl)
+```
+
+
 # Part 4 - Clustering
 
 # K-means
