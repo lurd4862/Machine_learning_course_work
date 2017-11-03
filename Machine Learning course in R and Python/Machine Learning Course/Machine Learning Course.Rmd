@@ -25,7 +25,16 @@ require(rpart)
 
 ```
 
-This is my Markdown following through the machine learning course
+This is my Markdown following through the machine learning course  
+
+# Progress
+
+- Need write up on
+    - Part 3; classification  
+    - Part 6, section 28; Thompson Sampling 
+    - Part 7; Natural language processing 
+    - Part 8; Deep learning 
+    - Part 9, section 35 & 36; Dimensionality reduction 
 
 # Part 1 - Data Preprocessing
 
@@ -856,8 +865,211 @@ Classifier_svm <-
 
 ```
 
+# Part 10 - Parameter Grid Search, Cross-validation and Boosting 
 
-## PCA
+Load data:
+
+```{r}
+social_network_ads_data <- 
+  data.table::fread("Part_10_Boosting/Model_Selection/Social_Network_Ads.csv")
+```
+
+## Cross validation
+
+The purpose of crossvalidation is to see the average performance of the model accross different folds of the data. 
+
+### Intuition
+
+Cross-validation is essential when the practitioner believes that the modelling algorithms being employed is at risk of overfitting the data. In these cases cross-validation will split the data into different folds. By holding each fold out as the testing set the model can now test the out-of-sample accuracy looping through each fold while still leveraging all the rest of the data and then averaging out the model performance for these non-independent folds.
+
+In practise it would be better to run multiple independant experiments, but this would be time consuming and we dont have time or money to run multiple experiments.
+
+### How to
+
+This can be interpreted via the confusion matrix. A perfect accuracy score would yield a confusion matrix where all entries are on the diagonal (i.e. if it was predicted a x_hat it was actualy x).  
+
+The confusion matrix can be derived manually by using the table function. When used on a single vector the table function behaves like a group by count(*). When used on two vectors it will count the overlaps bewteen unique items in both sets.  
+
+```{r}
+library(caret)
+library(e1071)
+
+# a bottom up approach
+folds = createFolds(iris, k = 10)
+cv = lapply(folds, function(x){
+  training_fold = iris[-x,]
+  test_fold = iris[x,]
+  classifier = svm(formula = Species ~ .,
+                   data = training_fold,
+                   type = 'C-classification',
+                   kernel = 'radial'
+                   )
+  y_pred = predict(classifier,newdata = test_fold[,-5])
+  outp = table(y_pred,test_fold$Species)
+  # confusionMatrix(classifier)
+})
+
+# a more correct approach using built methods
+  classifier = svm(formula = Species ~ .,
+                   data = iris,
+                   type = 'C-classification',
+                   kernel = 'radial',
+                   cross=10
+                   )
+  y_pred = predict(classifier,newdata = iris[,-5])
+  outp = table(y_pred,iris$Species)
+  outp
+  
+# A much better approach yet using the caret workbench
+cvCtrl = caret::trainControl(method = "cv",
+                             number = 10,
+                             savePredictions = T)
+
+caret_svm_model <-
+      caret::train(data = iris, Species~.,
+                   method = "svmRadial",
+                   trControl = cvCtrl
+                   )
+
+caret_svm_model %>% plot
+varImp(caret_svm_model) %>% plot
+caret_svm_model$results
+
+confusionMatrix(caret_svm_model)
+```
+
+Using the caret work bench we can leverage many powerfull functions and a more robust backend. Thus we get variable importance, properly executed cross-validation in the presence of other pre-processing operations and performance options such as parrallel computing.  
+
+## Grid Search and Parameter Tuning
+
+In machine learning applications there are 2 types of parameters:  
+- Learned parameters that the machine learning algorithm will solve intuitively (e.g. coefficients in a regression model)  
+- Hyper parameters that are chosen by the ML practitioner such as learning rate, tree size, test-train split etc.
+
+One can imporve the performance of a model by finding the optimal combination of hyper-parameters by scanning through the parameter space. Generally speaking there are methods designed to improve the efficiency of finding these optima such as stochastic gradient decent. These and more advanced methods are especially employed in deep-learning models.  
+
+As a basic starting point we can do a simple grid search to scan the hyper-parameter space. The idea here is to take every possible permutation of the parameters that can be used and running the model for each parameter in question until the optimal parameters are found for a scoring metric such as accuracy. 
+
+Let's repeat the classification using svm but now we try to find the optimal hyper-parameters
+
+```{r}
+library(caret)
+
+grid <- expand.grid(sigma=seq(0.1,0.9,length.out = 10), C=seq(0.1,1,length.out = 10))
+
+cvCtrl = caret::trainControl(method = "cv",
+                             number = 10,
+                             savePredictions = T)
+
+caret_svm_model <-
+      caret::train(data = iris, Species~.,
+                   method = "svmRadial",
+                   trControl = cvCtrl,
+                   tuneGrid=grid
+                   )
+
+caret_svm_model %>% plot()
+varImp(caret_svm_model) %>% plot
+caret_svm_model$results
+
+confusionMatrix(caret_svm_model)
+```
+
+## XGBoost
+
+XGBoost is an algorithm that has recently been dominating the machine learning literature where tabular or structured data is involved.  
+
+It uses an implementation of decision trees using gradien boosting designed for speed and performance.  
+
+In general the XGBoost algorithm is a more strict and optimized version of the GBM model in R.
+
+```{r}
+data_XGB = 
+  # data.table::fread("Part_10_Boosting/XGBoost/Churn_Modelling.csv")
+  readr::read_csv("Part_10_Boosting/XGBoost/Churn_Modelling.csv")
+```
+
+Pre-process the data
+
+```{r}
+data_XGB = data_XGB[,4:14]
+
+#encode categorical variables as factors
+data_XGB <- 
+  data_XGB %>% 
+  mutate(Geography = factor(Geography,
+                            levels = c('France','Spain','Germany'),
+                            labels = c(1,2,3)) %>% as.numeric(),
+         Gender = factor(Gender,
+                         levels = c('Female','Male'),
+                         labels = c(1,2)) %>% as.numeric()
+         )
+
+library(caTools)
+set.seed(123)
+
+split = sample.split(data_XGB$Exited, SplitRatio = 0.8)
+train = data_XGB[split,]
+test = data_XGB[!split,]
+
+```
+
+no feature scaling required  
+
+Train model:  
+
+```{r}
+library(xgboost)
+
+classifier_XGB <- xgboost::xgboost(data = base::as.matrix(train[,-11] %>% tbl_df()),
+                                   label = train$Exited,
+                                   nrounds = 100) 
+
+```
+
+Manually calculate some accuracy statistics since this library does not seem to have relevant summary functions  
+
+```{r}
+y_pred = predict(classifier_XGB, newdata = as.matrix(test[,-11])) >=0.5
+y_actual = test[,11] %>% flatten_dbl()
+
+cm = table(y_pred,y_actual)
+
+accuracy =  (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] + cm[1,2] + cm[2,1]) #sum of diagonal over sum of all hits
+
+# in other words the instructor should've used:
+accuracy_ = sum(diag(cm)) / (test %>% nrow)
+#since this can be used for any arbitrary number of categories
+```
+
+So interestingly; if I increase the parameter nrounds I can get the R-squared estimate down by a lot, especially since the algorithm is so fast. However, this actually decreases the percieved accuracy of the model. That's interesting, also why does the model report R-squared anyway, if it is not a relevant measure of accuracy?
+
+Let's apply our grid_search approach to find a better parameter value:  
+
+### Manual grid-search approach (1 parameter)
+
+For multiple parameters use expand.grid together with pmap (exponentially taxing)  
+
+```{r}
+# grid = expand.grid()
+grid = seq(1,5000,length.out = 19) # find the best parameter based on n runs
+
+grid_accuracy = grid %>% map(~xgboost::xgboost(data = base::as.matrix(train[,-11] %>% tbl_df()),
+                               label = train$Exited,
+                               nrounds = .x)) %>%
+  map(~predict(.x, newdata = as.matrix(test[,-11])) >=0.5) %>% 
+  map(~table(test[,11] %>% flatten_dbl(),.x)) %>% 
+  map(~sum(diag(.x)) / (test %>% nrow))
+
+grid_accuracy %>% flatten_dbl() %>% plot
+```
+
+Fascinating, the actual accuracy goes down the more iterations you use...
+I expected some sort of cut-off where overfitting happens but its entirely a downward trend. This casts a lot of doubt on the actual validity of the model being used. Not because it's bad but because it may be being used incorrectly by the people in this course. Alas I don't know enough about this model to really say whats wrong here, but its suspicious.
+
+The model does however converge on about 1300 iterations with accuracy of roughly ~0.85 and RMSE of 0.004094. Interestingly the max accuracy ~0.87 has model specified RMSE of ~0.5 which could indicate a few outliers skewing the model accuracy when optimized using RMSE.
+
+If this is true the model using gradient descent performs extremely well after only a single iteration. That implies that the default starting parameters for the tree based search happens to be pretty good or the gradient descent arrived at a good solution of hyper-parameters after only a single iteration.
 
 # Playground
 
