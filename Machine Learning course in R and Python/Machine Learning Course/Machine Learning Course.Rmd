@@ -31,10 +31,10 @@ This is my Markdown following through the machine learning course
 
 - Need write up on
     - Part 3; classification  
-    - Part 6, section 28; Thompson Sampling 
-    - Part 7; Natural language processing 
-    - Part 8; Deep learning 
-    - Part 9, section 35 & 36; Dimensionality reduction 
+    - Part 6, section 28; Thompson Sampling
+    - Part 7; Natural language processing
+    - Part 8; Deep learning
+    - Part 9, section 35 & 36; Dimensionality reduction
 
 # Part 1 - Data Preprocessing
 
@@ -62,7 +62,7 @@ dataset <-
 #   mean(dataset$Salary, na.rm = TRUE)
 # dataset$Salary[which(is.na(dataset$Salary))] <-
 #   meanSalary
-  
+
 
 #Tutorial method for dealing with NA
 dataset$Age <- ifelse(is.na(dataset$Age),mean(dataset$Age,na.rm = T),dataset$Age)
@@ -82,8 +82,8 @@ dataset$Country <- dataset$Country %>% factor(levels = c("France", "Spain", "Ger
                                               labels = c(1, 2, 3))
 
 # #If we want to further spread the Country into clasification (as with logistic regression) I would use this:
-# dataset %>% 
-#   spread(Country, Country) %>% 
+# dataset %>%
+#   spread(Country, Country) %>%
 #   rename(France = 1, Spain = 2, Germany = 3)
 
 ```
@@ -93,7 +93,7 @@ dataset$Country <- dataset$Country %>% factor(levels = c("France", "Spain", "Ger
 ```{r}
 #We use caTools
 set.seed(123)
-split <- 
+split <-
   sample.split(dataset$Purchased, SplitRatio = 0.8)
 training_set <- subset(dataset, split == T)
 test_set <- subset(dataset, split == F)
@@ -130,11 +130,11 @@ Here is how I decided to achieve scaling before seeing the results:
 
 ```{r}
 # #Standardised
-# dataset$Age <- 
+# dataset$Age <-
 #   sapply(dataset$Age, function(x) (x-mean(dataset$Age))/sd(dataset$Age))
-# 
+#
 # #Normalised
-# dataset$Age <- 
+# dataset$Age <-
 #   sapply(dataset$Age, function(x) (x-min(dataset$Age))/(max(dataset$Age)-min(dataset$Age)))
 
 ```
@@ -142,13 +142,13 @@ Here is how I decided to achieve scaling before seeing the results:
 ## Scale Salary
 
 ```{r}
-# 
+#
 # #Standardised
-# dataset$Salary <- 
+# dataset$Salary <-
 #   sapply(dataset$Salary, function(x) (x-mean(dataset$Salary))/sd(dataset$Salary))
-# 
+#
 # #Normalised
-# dataset$Salary <- 
+# dataset$Salary <-
 #   sapply(dataset$Salary, function(x) (x-min(dataset$Salary))/(max(dataset$Salary)-min(dataset$Salary)))
 ```
 
@@ -165,19 +165,19 @@ set.seed(123)
 First we fit a linear model to the data
 
 ```{r}
-dataset <- 
+dataset <-
 read.csv(file = "Part2_Regression/Simple_Linear_Regression/Salary_Data.csv")
 
-split <- 
+split <-
   sample.split(dataset$Salary, SplitRatio = 2/3)
 
-training_set <- 
+training_set <-
   dataset[split,]
 
-test_set <- 
+test_set <-
   dataset[!split,]
 
-regressor <- 
+regressor <-
   lm(formula = Salary~., training_set)
 
 ```
@@ -186,8 +186,8 @@ Now we Predict our values using the test data (me)
 
 ```{r}
 
-y_pred <- 
-  predict(regressor, newdata = test_set) %>% 
+y_pred <-
+  predict(regressor, newdata = test_set) %>%
   data.frame
 
 #Plot the predictions over the test
@@ -209,7 +209,7 @@ Read in the data:
 
 ```{r}
 
-dataset <- 
+dataset <-
 read.csv("Part2_Regression/Multiple-Linear-Regression/Multiple_Linear_Regression/50_Startups.csv")
 dataset
 
@@ -229,14 +229,14 @@ Split the data:
 
 ```{r}
 
-split <- 
+split <-
   sample.split(dataset$Profit, SplitRatio = 8/10)
 
-training_set <- 
+training_set <-
   dataset[split,]
 training_set
 
-test_set <- 
+test_set <-
   dataset[!split,]
 test_set
 
@@ -246,15 +246,15 @@ Run the multiple linear regression model and compare the results
 
 ```{r}
 
-regressor <- 
+regressor <-
   lm(formula = Profit~., training_set)
 
 summary(regressor)
 
-Profit_pred <- 
+Profit_pred <-
   predict(regressor, test_set)
 
-Compare_df <- 
+Compare_df <-
   cbind(test_set, Profit_pred)
 
 Compare_df %>% mutate(Accuracy = abs(Profit_pred-Profit)/Profit)
@@ -267,22 +267,22 @@ Now preoceed with backward elimination
 p_value <- 0.05
 
 #Remove the State variable
-regressor <- 
+regressor <-
   lm(formula = Profit ~ R.D.Spend + Administration + Marketing.Spend, dataset)
 
-summary(regressor) 
+summary(regressor)
 
 #Remove the Administration variable
-regressor <- 
+regressor <-
   lm(formula = Profit ~ R.D.Spend + Marketing.Spend, dataset)
 
-summary(regressor) 
+summary(regressor)
 
 #Remove the State & Marketing spend variable
-regressor <- 
+regressor <-
   lm(formula = Profit ~ R.D.Spend + Administration, dataset)
 
-summary(regressor) 
+summary(regressor)
 
 ```
 
@@ -298,7 +298,7 @@ Read in the data
 
 ```{r}
 
-dataset <- 
+dataset <-
 read.csv("Part3_Polynomial_Regression/Polynomial_Regression/Position_Salaries.csv")
 
 ```
@@ -308,7 +308,7 @@ Create a linear regression model to compare (data is exponential)
 ```{r}
 regressor <- lm(formula = Salary~Level, dataset)
 
-Linear_regressor <- 
+Linear_regressor <-
   predict(regressor, dataset) %>% data.frame()
 
 ggplot() +
@@ -317,7 +317,7 @@ ggplot() +
   geom_line(data = dataset, aes(x = dataset$Level,
                                y = Linear_regressor$.))
 
-Value_Prediction <- 
+Value_Prediction <-
   predict(regressor, data.frame(Level = 6.5))
 ```
 
@@ -325,9 +325,9 @@ Now we create the polynomial regressor.
 The way they do it is actually very rigid and arduous so I used the poly function which enables a more accurate and also easier polynomial regression (pretty awesome)
 
 ```{r}
-Poly_Regressor <- 
+Poly_Regressor <-
   lm(formula = Salary~poly(Level,9), dataset)
-Poly_predict <- 
+Poly_predict <-
   predict(Poly_Regressor, dataset) %>% data.frame()
 
 ggplot() +
@@ -336,7 +336,7 @@ ggplot() +
   geom_line(data = y_pred, aes(x = dataset$Level,
                                y = Poly_predict$.))
 
-Value_Prediction <- 
+Value_Prediction <-
   predict(Poly_Regressor, data.frame(Level = 6.5))
 
 Value_Prediction
@@ -345,10 +345,10 @@ Value_Prediction
 What about a log transform model?
 
 ```{r}
-Log_Regressor <- 
+Log_Regressor <-
   lm(formula = log(Salary)~Level, dataset)
 
-Log_prediction <- 
+Log_prediction <-
   exp(predict(Log_Regressor, dataset)) %>% data.frame()
 
 ggplot() +
@@ -357,7 +357,7 @@ ggplot() +
   geom_line(data = y_pred, aes(x = dataset$Level,
                                y = Log_prediction$.))
 
-# TruthOrBluff <- 
+# TruthOrBluff <-
 #   Log_prediction[which(Log_prediction$. <= 160000),1]
 ```
 
@@ -369,7 +369,7 @@ SVR is very straight forward to implement. We call the svm() function from the e
 
 Use the following main types:  
 - type = C-classification for classification  
-- type = eps-regression for regression of numeric variables. 
+- type = eps-regression for regression of numeric variables.
 
 Remember to do the usual data preparation; tokenize factors, scale variables. This will give you the best predictions.  
 
@@ -412,7 +412,7 @@ There are, thereforem, 2 types of  trees (as usual).
 
 Watch the intuition video here: https://www.udemy.com/machinelearning/learn/v4/t/lecture/5732730?start=0  
 
-Regression trees are based on information entropy. Entropy is a measure of uncertainty or the value of an additional data point in terms of information. 
+Regression trees are based on information entropy. Entropy is a measure of uncertainty or the value of an additional data point in terms of information.
 
 Entropy is defined as $$E(-ln(P(X)))$$. It is often taken with base 2 in which case it is defined as bit entropy. Base 2 is computationally more efficient and often better leverages in binary outcomes. In the case of a bernouli process the entropy would be: $$\sum -P(x_i)ln(P(x_i)) = \sum -1/2ln(1/2)$$. The entropy is maximised when the odds are 1/2 because then we are the least certain  
 
@@ -421,7 +421,7 @@ The algorythm will devide the data into branches where the entropy is above a ce
 ### Load the data
 
 ```{r}
-dataset <- 
+dataset <-
 read.csv(file = "Part2_Regression/Decision_Tree_Regression/Decision_Tree_Regression/Position_Salaries.csv")
 ```
 
@@ -493,7 +493,7 @@ salary_data <- data.table::fread("Part2_Regression/Random_Forest_Regression/Posi
 
 ```{r}
 library(randomForest)
-predictor <- 
+predictor <-
   randomForest::randomForest(data = salary_data,Salary~Level,ntree=10)
                 # randomForest(
                              # data=salary_data,
@@ -553,7 +553,7 @@ caret_forest_model$results
 So we got a 93% accuracy when classifying the species using 10 fold leave one out cross validation using a 80% traning split  
 
 In this short pipeline you can split your data into training and testing , k-fold cross validate, using up or down sampling methods to deal with class imbalances, run on multiple cores and tune your parameters automatically or manually for a very large number of models
-git 
+git
 The tuning of parameters can be done manually by setting:
 
 ```{r, eval=FALSE}
@@ -567,9 +567,9 @@ To run on multiple cores use the following workflow before training the model:
   cores <- cores
   cl <- makeCluster(cores)
   registerDoParallel(cl)
-  
+
   # ---> train
-  
+
   stopCluster(cl)
 ```
 
@@ -590,7 +590,7 @@ dataset <-
 ## Find best number of clusters using elbow method
 
 ```{r}
-subset <- 
+subset <-
   dataset %>% select(`Annual Income (k$)`, `Spending Score (1-100)`)
 
 wcss <- vector()
@@ -641,9 +641,9 @@ _To include all the other variables we will have to tokenize the Genre column in
 
 ```{r}
 
-subset_2 <- 
-  dataset %>% 
-  select(Genre:`Spending Score (1-100)`) %>% 
+subset_2 <-
+  dataset %>%
+  select(Genre:`Spending Score (1-100)`) %>%
   mutate(Genre = factor(Genre, labels = c(0,1),levels = c("Female","Male")))
   # mutate(Genre = factor(Genre, levels = c(0,1),labels = c("Female","Male")))
 
@@ -657,12 +657,12 @@ for(i in 1:50){
 wcss_2 %>% plot
 
 # Quicly look at points and gradients/skewness
-wcss_2 %>% 
-  tbl_df() %>% 
-  arrange(-value) %>% 
+wcss_2 %>%
+  tbl_df() %>%
+  arrange(-value) %>%
   mutate(clusters = seq_along(value),
          gradient = lag(value)-value,
-         gradient_rate_change = lag(gradient)-gradient) %>% 
+         gradient_rate_change = lag(gradient)-gradient) %>%
   mutate_all(round)
 
 # Using the 2nd derivitive as an aproximation we use 7 clusters as the optimal number
@@ -693,7 +693,7 @@ There are broad approaches to H-clustering:
   - Divisive  
 
 _Agglomerative_ starts from the bottom and builds everything up (using a dendogram), and _Divisive_ is the opposite.    
-  
+
 _HC uses distance between clusters_.  
 This can be defined in different ways since a cluster is a group of points!  
 
@@ -701,28 +701,28 @@ Steps:
   1. Make a cluster for each point  
   2. Make n-1 clusters by grouping together the closest clusters  
   3. repeat step 2 untill you have 1 cluster left  
-  
+
 ## Dendograms Agglomerative
 
 A dendogram is a plot of distances for each cluster from another showing how clusters where connected given their distances  
 
-For _Agglomerative_ the dendogram will build larger clusters from smaller clusters like building a tower. 
+For _Agglomerative_ the dendogram will build larger clusters from smaller clusters like building a tower.
 
 ## Choosing the number of clusters using the dendogram
 
 By looking at the dendogram we can determine the number of clusters we want to use by identifying some threshold on vertical distance that we do not want to cross.  
 
-Here vertical distance refers to the distance between the clusters being joined on the current iteration 
+Here vertical distance refers to the distance between the clusters being joined on the current iteration
 
 _Rule of thumb:_ make the threshold somewhere in the height of the cluster with the largest vertical distance. Repeat this process untill the next vertical distance is not significantly larger than the previous
 
 ## Read in the data
 
 ```{r}
-dataset <- 
+dataset <-
   fread("Part_4_Clustering/Hierarchical-Clustering/Hierarchical_Clustering/Mall_Customers.csv")
 
-subset <- 
+subset <-
   dataset %>% select(`Annual Income (k$)`,`Spending Score (1-100)`)
 ```
 
@@ -745,7 +745,7 @@ We can clearly see from this dendogram that the threshold will be pretty low
 We now cut the dendogram tree and choos our number of clusters
 
 ```{r}
-HC_clusters <- 
+HC_clusters <-
 HC %>% cutree(k = 5) # 5 clusters
 ```
 
@@ -772,7 +772,7 @@ clusplot(
 ## Load data
 
 ```{r}
-dataset <- 
+dataset <-
   read.csv(file = "Part_9_Dimensionality_Reduction/PCA/Wine.csv")
 ```
 
@@ -824,10 +824,10 @@ pca_caret <-
   preProcess(x = training_set[, -14],
   method = "pca",
   pcaComp = 2)
-  
+
   prediction_caret <-
   pca_caret %>% predict(newdata = test_set[, -14])
-  
+
   prediction_caret %>% plot()
 ```
 
@@ -837,14 +837,14 @@ To set number of features here you use
 - ncp = n  
 
 ```{r}
-pca_Facto <- 
-  FactoMineR::PCA(X = training_set[,-14], 
+pca_Facto <-
+  FactoMineR::PCA(X = training_set[,-14],
                   ncp = 2)
 
 predict_Facto <-
 pca_Facto %>% predict(newdata = training_set[,-14])
- 
-pca_Facto %>% plot 
+
+pca_Facto %>% plot
 ```
 
 
@@ -865,18 +865,206 @@ Classifier_svm <-
 
 ```
 
-# Part 10 - Parameter Grid Search, Cross-validation and Boosting 
+# Part 6 - Reinforced Learning
+
+Reinforced learning, also reffered to as online learning, is a branch of machine learning where we use the observed filtration up to time t to make a decision regarding time t+1. The AI system is rewarded when a desired outcome is reached and penalized otherwise.  
+
+We will solve the multi-armed bandit problem to illustrate the use of reinforced learning, however there are various possible applications.  
+
+## Multi-Armed Bandit Problem
+
+This model assumes that you have many different projects/nodes where you could spend your resources (like a row of slot machines at a casino, hence the name). From the shopping centre's point of view, they want to maximise profits by buying the most profitable set of items. But before they know which items may be the most profitable (which slot machine has the highest returns) they must deal with the tradeoff of exploring new products vs. stocking the products they currently know to be the most proffitable.  
+
+Traditionally one would use AB tests if you were purely interested in exploring the different projects/options. By measuring the case vs. control you can say with a certain level of confidence if one is in fact better than the other. But this does not allow you to maximise your profits while you are exploring the different options. In essence: we want to test the different options whilst simultaniously exploiting the ones we believe to be the best given information gathered thus far.  
+
+## Upper Confidence Bound (UCB) method
+
+To employ the UCB method we look at the following metrics:  
+- Average reward $$\bar{r}_i(n)=\frac{R_i(n)}{N_i(n)}$$  
+- Confidence interval $$\pm\Delta_i(n)=\sqrt{\frac{3log(n)}{2N_i(n)}}$$  
+
+By using the upper bound of the confidence interval of the mean reward we can prioritise those adds that currently have more possible headroom for reward while still placing emphasis on the expected amount of reward.
+
+e.g. Immagine we have 2 adds that currently have the same average return. Add A and B respectively. Add A has only 2 trials where we tried using it. Add B has 100 trials where we used it. If we are more unsure about how volatile add A could be we will therefore want to prioritise using A instead of B because add A merits exploration and has good exploitation. This way we can balance these apposing views while still maximising expected reward.  
+
+### Get the data
+
+CTR stands for click through rate, which is the behaviour we want to optimize since we want to choose the add which maximises the number of people clicking on it  
+
+```{r}
+data_raw <-
+  data.table::fread("Part6_Reinforcement_learning/UCB/Ads_CTR_Optimisation.csv") %>%
+  tbl_df()
+
+```
+
+### How would we score if we chose an add at random?
+
+In the course they used a simple for loop but I decided to write a quick closure funtion that does this:
+
+```{r}
+
+Random_strategy_fn <- function(data){
+  ads_selected <-
+    integer(0)
+  total_clicks <- 0
+  i <- 1
+
+function(data=NULL){
+  if (!is.null(data)){
+  N <-
+    dim(data)[1]
+  M <-
+    dim(data)[2]
+
+    ad <- sample(1:M,1)
+    ads_selected <<- append(ads_selected, ad)
+    total_clicks <<- total_clicks + flatten_dbl(data[i,ad])
+    i <<- i+1
+  } else {
+    return(list(
+                ads_selected = ads_selected,
+                total_clicks = total_clicks
+                )
+    )
+  }
+}  
+
+}
+
+
+```
+
+Now we call the function to choose random adds and compare them to the simulated data:
+
+```{r}
+Score_random_add_selection <- Random_strategy_fn(data_raw)
+
+for(i in 1:nrow(data_raw)){
+
+Score_random_add_selection(data_raw)
+}
+
+Score_random_add_selection()
+
+```
+So when we simply pick adds at random we will get around ~1250 hits.  
+
+### Confirm that the adds were selected at random
+
+```{r}
+
+# Score_random_add_selection()$ads_selected %>% hist()
+Score_random_add_selection()$ads_selected %>% qplot()
+
+```
+
+Can we improve our add campaign by learning which adds are getting hits while the adds are being used live?  
+
+### Improve results using UCB
+
+Again, instead of simply executing a for loop I am going to construct another lexical closure function so that the function itself can be reused in the future on any similar dataset without having to re-learn the process.  
+
+The main benefit I see in doing it like this is that the function can be continuously called with live data and its results will keep updating. Something that would otherwise be impossible if the loops are being called explicitly. To do this one would simply have to adapt the way the function is called (each time new data is recieved).  
+
+Turn their loop into a closure function:
+
+```{r}
+# dataset <- data_raw %>% data.frame
+# dataset <- data_raw
+
+Create_UCB_Model_fn <- function(data){
+
+  data <- data %>% data.frame
+
+N <- 10000
+d <- 10
+ads_selected <- integer(0)
+numbers_of_selections <- integer(d)
+sums_of_rewards <- integer(d)
+total_reward <- 0
+
+    function(data=NULL){
+    if(!is.null(data)){
+      for (n in 1:N) {
+        ad <- 0
+        max_upper_bound <- 0
+        for (i in 1:d) {
+          if (numbers_of_selections[i] > 0) {
+            average_reward <- sums_of_rewards[i] / numbers_of_selections[i]
+            delta_i <- sqrt(3/2 * log(n) / numbers_of_selections[i])
+            upper_bound <- average_reward + delta_i
+          } else {
+              upper_bound <- 1e400
+          }
+          if (upper_bound > max_upper_bound) {
+            max_upper_bound <- upper_bound
+            ad <- i
+          }
+        }
+        ads_selected <<- append(ads_selected, ad)
+        numbers_of_selections[ad] <<- numbers_of_selections[ad] + 1
+        reward <- data[n, ad]
+        sums_of_rewards[ad] <<- sums_of_rewards[ad] + reward
+        total_reward <<- total_reward + reward
+      }
+    } else {
+      return(list(
+        ads_selected = ads_selected,
+        numbers_of_selections = numbers_of_selections,
+        sums_of_rewards = sums_of_rewards,
+        total_reward = total_reward
+      ))
+    }
+  }
+}
+
+
+```
+
+
+Now we initialize and call this function on all the new data:  
+
+```{r}
+data_raw_df <- data_raw %>% data.frame
+# Score_UCB_add_selection <- UCB_strategy_fn(data_raw)
+Score_UCB_add_selection <- Create_UCB_Model_fn(data_raw_df)
+
+# for(i in 1:(dim(data_raw)[1]*dim(data_raw)[2])){
+Score_UCB_add_selection(data.frame(data_raw))
+# }
+
+Score_UCB_add_selection()
+# Score_UCB_add_selection()$numbers_of_selections
+
+```
+
+Explaining the output:  
+*numbers_of_selections* refers to the number of times the model decided to display each add.  
+*sums_of_rewards* refers to the accuracy/click rate of the each add when it was correctly displayd and clicked on.  
+
+### Visualize the model add selection
+
+```{r}
+Score_UCB_add_selection()$ads_selected %>% qplot()
+```
+
+Here we can see the massive difference between simply selecting the add at random and using a reinforced learning algorithm. Clearly the algorithm very quickly converged to the 5th add out of the 10 adds. This means that on average the people in this test group clearly preffered ad 5 over the other adds. This is further supported by the fact that the UCB method gave us almost twice as many hits.
+
+Of course, to reiterate, we could've come to the same conclusion using an A-B test and then simply used add 5 only. But using this method we can now safely decide on using add 5 whilst also having optimized the return during the trial phase. This is even more handy when we have many new users that all need to be tested (since this can be unsupervised and successive A-B tests would be too expensive on time/resources).  
+
+# Part 10 - Parameter Grid Search, Cross-validation and Boosting
 
 Load data:
 
 ```{r}
-social_network_ads_data <- 
+social_network_ads_data <-
   data.table::fread("Part_10_Boosting/Model_Selection/Social_Network_Ads.csv")
 ```
 
 ## Cross validation
 
-The purpose of crossvalidation is to see the average performance of the model accross different folds of the data. 
+The purpose of crossvalidation is to see the average performance of the model accross different folds of the data.
 
 ### Intuition
 
@@ -919,7 +1107,7 @@ cv = lapply(folds, function(x){
   y_pred = predict(classifier,newdata = iris[,-5])
   outp = table(y_pred,iris$Species)
   outp
-  
+
 # A much better approach yet using the caret workbench
 cvCtrl = caret::trainControl(method = "cv",
                              number = 10,
@@ -948,7 +1136,7 @@ In machine learning applications there are 2 types of parameters:
 
 One can imporve the performance of a model by finding the optimal combination of hyper-parameters by scanning through the parameter space. Generally speaking there are methods designed to improve the efficiency of finding these optima such as stochastic gradient decent. These and more advanced methods are especially employed in deep-learning models.  
 
-As a basic starting point we can do a simple grid search to scan the hyper-parameter space. The idea here is to take every possible permutation of the parameters that can be used and running the model for each parameter in question until the optimal parameters are found for a scoring metric such as accuracy. 
+As a basic starting point we can do a simple grid search to scan the hyper-parameter space. The idea here is to take every possible permutation of the parameters that can be used and running the model for each parameter in question until the optimal parameters are found for a scoring metric such as accuracy.
 
 Let's repeat the classification using svm but now we try to find the optimal hyper-parameters
 
@@ -984,7 +1172,7 @@ It uses an implementation of decision trees using gradien boosting designed for 
 In general the XGBoost algorithm is a more strict and optimized version of the GBM model in R.
 
 ```{r}
-data_XGB = 
+data_XGB =
   # data.table::fread("Part_10_Boosting/XGBoost/Churn_Modelling.csv")
   readr::read_csv("Part_10_Boosting/XGBoost/Churn_Modelling.csv")
 ```
@@ -995,8 +1183,8 @@ Pre-process the data
 data_XGB = data_XGB[,4:14]
 
 #encode categorical variables as factors
-data_XGB <- 
-  data_XGB %>% 
+data_XGB <-
+  data_XGB %>%
   mutate(Geography = factor(Geography,
                             levels = c('France','Spain','Germany'),
                             labels = c(1,2,3)) %>% as.numeric(),
@@ -1023,7 +1211,7 @@ library(xgboost)
 
 classifier_XGB <- xgboost::xgboost(data = base::as.matrix(train[,-11] %>% tbl_df()),
                                    label = train$Exited,
-                                   nrounds = 100) 
+                                   nrounds = 100)
 
 ```
 
@@ -1057,8 +1245,8 @@ grid = seq(1,5000,length.out = 19) # find the best parameter based on n runs
 grid_accuracy = grid %>% map(~xgboost::xgboost(data = base::as.matrix(train[,-11] %>% tbl_df()),
                                label = train$Exited,
                                nrounds = .x)) %>%
-  map(~predict(.x, newdata = as.matrix(test[,-11])) >=0.5) %>% 
-  map(~table(test[,11] %>% flatten_dbl(),.x)) %>% 
+  map(~predict(.x, newdata = as.matrix(test[,-11])) >=0.5) %>%
+  map(~table(test[,11] %>% flatten_dbl(),.x)) %>%
   map(~sum(diag(.x)) / (test %>% nrow))
 
 grid_accuracy %>% flatten_dbl() %>% plot
@@ -1077,4 +1265,3 @@ If this is true the model using gradient descent performs extremely well after o
 
 
 ```
-
