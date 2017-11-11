@@ -1,2 +1,0 @@
-"0","data <- read.csv(file = ""Part2_Regression/SVR/SVR/Position_Salaries.csv"")"
-"0","head(data)"

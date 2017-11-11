@@ -1,4 +1,0 @@
-"0","regressor <- rpart(formula = Salary ~ ., data = dataset, method = ""exp"")"
-"2","Error in get(paste(""rpart"", method, sep = "".""), envir = environment())(Y,  : 
-  Response must be a 'survival' object - use the 'Surv()' function
-"

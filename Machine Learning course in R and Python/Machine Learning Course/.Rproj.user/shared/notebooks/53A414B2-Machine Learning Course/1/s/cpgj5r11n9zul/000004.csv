@@ -1,7 +1,0 @@
-"0","regressor <- rpart(formula = Salary ~ ., data = dataset, control = rpart.control(minsplit = 2))"
-"0","y_predict <- predict(regressor, newdata = dataset) %>% data.frame"
-"0","ggplot() +"
-"0","  geom_point(data = dataset, aes(x = dataset$Level,"
-"0","                                  y = dataset$Salary)) +"
-"0","  geom_line(data = y_predict, aes(x = dataset$Level,"
-"0","                               y = y_predict))"
